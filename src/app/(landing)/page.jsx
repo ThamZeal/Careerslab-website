@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, ArrowLeft, Check, Code, Laptop, Users, Mail, Phone, ExternalLink, Clock, Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
+import Squares from '@/components/Squares/Squares';
 
 // Simple SVG icon for handshake directly in this file
 const HandshakeIcon = () => (
@@ -64,6 +65,30 @@ const jobOpenings = [
     },
     {
         id: 3,
+        title: "Full Stack Developer Intern",
+        location: "Remote",
+        type: "Internship (6 months)",
+        description: "Great opportunity for a student or recent graduate to gain hands-on experience in web development.",
+        requirements: ["JavaScript knowledge", "Basic React skills", "Willingness to learn", "Education in CS or related field"]
+    },
+    {
+        id: 4,
+        title: "Senior Python Developer",
+        location: "Remote",
+        type: "Full-time",
+        description: "We're looking for an experienced Python developer with machine learning expertise to join our AI solutions team.",
+        requirements: ["5+ years Python experience", "Machine learning knowledge", "API development skills", "Team collaboration"]
+    },
+    {
+        id: 5,
+        title: "UX/UI Designer",
+        location: "London (Hybrid)",
+        type: "Full-time",
+        description: "Creative designer needed to craft user experiences across web and mobile applications for our clients.",
+        requirements: ["3+ years UX/UI experience", "Figma proficiency", "User research skills", "Portfolio of work"]
+    },
+    {
+        id: 6,
         title: "Full Stack Developer Intern",
         location: "Remote",
         type: "Internship (6 months)",
@@ -138,34 +163,46 @@ const Index = () => {
     }, [currentJobIndex]);
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white scroll-smooth">
             {/* Navbar */}
             <nav className="bg-white py-4 px-6 shadow-sm sticky top-0 z-50">
                 <div className="container mx-auto flex justify-between items-center">
                     <div className="flex items-center space-x-2">
-                        <span className="text-blue-600 font-bold text-2xl">CareersLab</span>
+                        <span className="text-[#065c9b] font-bold text-2xl">CareersLab</span>
                         <span className="text-sm text-gray-500">at Thamzeal International</span>
                     </div>
 
                     <div className="hidden md:flex space-x-8">
-                        <a href="#" className="text-gray-700 hover:text-blue-600 transition-colors">Home</a>
-                        <a href="#services" className="text-gray-700 hover:text-blue-600 transition-colors">Services</a>
-                        <a href="#testimonials" className="text-gray-700 hover:text-blue-600 transition-colors">Testimonials</a>
-                        <a href="#benefits" className="text-gray-700 hover:text-blue-600 transition-colors">Benefits</a>
-                        <a href="#jobs" className="text-gray-700 hover:text-blue-600 transition-colors">Job Openings</a>
-                        <a href="#contact" className="text-gray-700 hover:text-blue-600 transition-colors">Contact Us</a>
-                        <a href="#talent" className="text-gray-700 hover:text-blue-600 transition-colors">For Talent</a>
+                        <a href="#" className="text-gray-700 hover:text-[#065c9b] transition-colors">Home</a>
+                        <a href="#services" className="text-gray-700 hover:text-[#065c9b] transition-colors">Services</a>
+                        <a href="#testimonials" className="text-gray-700 hover:text-[#065c9b] transition-colors">Testimonials</a>
+                        <a href="#benefits" className="text-gray-700 hover:text-[#065c9b] transition-colors">Benefits</a>
+                        <a href="#jobs" className="text-gray-700 hover:text-[#065c9b] transition-colors">Job Openings</a>
+                        <a href="#contact" className="text-gray-700 hover:text-[#065c9b] transition-colors">Contact Us</a>
+                        <a href="#talent" className="text-gray-700 hover:text-[#065c9b] transition-colors">For Talent</a>
                     </div>
 
-                    <a href="#contact" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300">
+                    <a href="#contact" className="bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300">
                         Contact Now
                     </a>
                 </div>
             </nav>
 
             {/* Hero Section */}
-            <section className="bg-gradient-to-r from-blue-800 to-blue-900 py-32">
-                <div className="container mx-auto px-6 text-center">
+            
+            <section className="relative min-h-screen py-32 bg-black overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 bottom-0 z-0">
+                    <Squares
+                        speed={0.5}
+                        squareSize={50}
+                        direction="down"
+                        borderColor="#222222"
+                        hoverFillColor="#065c9b"
+                    />
+                </div>
+
+                {/* Content layer */}
+                <div className="relative z-10 container mx-auto px-6 text-center">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                         Build Your Tech Dream Team With Ease
                     </h1>
@@ -174,15 +211,22 @@ const Index = () => {
                     </p>
 
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <a href="#jobs" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg rounded-md transition duration-300">
+                        <a
+                            href="#jobs"
+                            className="bg-[#065c9b] hover:bg-blue-700 text-white px-8 py-6 text-lg rounded-md transition duration-300"
+                        >
                             View Open Positions
                         </a>
-                        <a href="#services" className="bg-transparent border border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-md flex items-center justify-center transition duration-300">
+                        <a
+                            href="#services"
+                            className="bg-transparent border border-white text-white hover:bg-white/10 px-8 py-6 text-lg rounded-md flex items-center justify-center transition duration-300"
+                        >
                             Learn More <ArrowRight className="ml-2 h-5 w-5" />
                         </a>
                     </div>
                 </div>
             </section>
+
 
             {/* Services Section */}
             <section id="services" className="py-20 bg-gray-100">
@@ -194,11 +238,11 @@ const Index = () => {
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-10">
-                        <div className="rounded-lg border bg-white text-gray-900 shadow-sm border-t-4 border-t-blue-600 hover:shadow-md transition-shadow">
+                    <div className="grid md:grid-cols-2 gap-10 max-w-4xl mx-auto">
+                        <div className="rounded-lg border bg-white text-gray-900 shadow-sm border-t-4 border-t-[#065c9b] hover:shadow-md transition-shadow">
                             <div className="flex flex-col space-y-1.5 p-6">
                                 <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center">
-                                    <Users className="mr-2 h-6 w-6 text-blue-600" />
+                                    <Users className="mr-2 h-6 w-6 text-[#065c9b]" />
                                     Staff Augmentation Services
                                 </h3>
                             </div>
@@ -208,52 +252,52 @@ const Index = () => {
                                 <h4 className="font-semibold text-lg mb-2">Expertise in:</h4>
                                 <ul className="space-y-2">
                                     <li className="flex items-center">
-                                        <span className="mr-2 text-blue-600"><Code className="h-5 w-5" /></span>
+                                        <span className="mr-2 text-[#065c9b]"><Code className="h-5 w-5" /></span>
                                         <span>Python Development</span>
                                     </li>
                                     <li className="flex items-center">
-                                        <span className="mr-2 text-blue-600"><Code className="h-5 w-5" /></span>
+                                        <span className="mr-2 text-[#065c9b]"><Code className="h-5 w-5" /></span>
                                         <span>Artificial Intelligence</span>
                                     </li>
                                     <li className="flex items-center">
-                                        <span className="mr-2 text-blue-600"><Code className="h-5 w-5" /></span>
+                                        <span className="mr-2 text-[#065c9b]"><Code className="h-5 w-5" /></span>
                                         <span>Full-Stack Web Development</span>
                                     </li>
                                     <li className="flex items-center">
-                                        <span className="mr-2 text-blue-600"><Laptop className="h-5 w-5" /></span>
+                                        <span className="mr-2 text-[#065c9b]"><Laptop className="h-5 w-5" /></span>
                                         <span>UI/UX Design</span>
                                     </li>
                                     <li className="flex items-center">
-                                        <span className="mr-2 text-blue-600"><Code className="h-5 w-5" /></span>
+                                        <span className="mr-2 text-[#065c9b]"><Code className="h-5 w-5" /></span>
                                         <span>Cloud & DevOps (AWS, OCI)</span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
 
-                        <div className="rounded-lg border bg-white text-gray-900 shadow-sm border-t-4 border-t-blue-600 hover:shadow-md transition-shadow">
+                        <div className="rounded-lg border bg-white text-gray-900 shadow-sm border-t-4 border-t-[#065c9b] hover:shadow-md transition-shadow">
                             <div className="flex flex-col space-y-1.5 p-6">
                                 <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center">
-                                    <span className="mr-2 h-6 w-6 text-blue-600"><HandshakeIcon /></span>
+                                    <span className="mr-2 h-6 w-6 text-[#065c9b]"><HandshakeIcon /></span>
                                     Collaboration Models
                                 </h3>
                             </div>
                             <div className="p-6 pt-0">
                                 <ul className="space-y-4">
                                     <li className="flex items-start">
-                                        <span className="mr-2 mt-1 text-blue-600"><Check className="h-5 w-5" /></span>
+                                        <span className="mr-2 mt-1 text-[#065c9b]"><Check className="h-5 w-5" /></span>
                                         <span>Short-Term Sprints</span>
                                     </li>
                                     <li className="flex items-start">
-                                        <span className="mr-2 mt-1 text-blue-600"><Check className="h-5 w-5" /></span>
+                                        <span className="mr-2 mt-1 text-[#065c9b]"><Check className="h-5 w-5" /></span>
                                         <span>Long-Term Contracts</span>
                                     </li>
                                     <li className="flex items-start">
-                                        <span className="mr-2 mt-1 text-blue-600"><Check className="h-5 w-5" /></span>
+                                        <span className="mr-2 mt-1 text-[#065c9b]"><Check className="h-5 w-5" /></span>
                                         <span>Intern-to-Hire Pipelines</span>
                                     </li>
                                     <li className="flex items-start">
-                                        <span className="mr-2 mt-1 text-blue-600"><Check className="h-5 w-5" /></span>
+                                        <span className="mr-2 mt-1 text-[#065c9b]"><Check className="h-5 w-5" /></span>
                                         <span>Dedicated Teams (Remote or Hybrid)</span>
                                     </li>
                                 </ul>
@@ -292,7 +336,7 @@ const Index = () => {
                                                 <div>
                                                     <blockquote className="text-lg text-gray-700 italic mb-4">"{testimonial.quote}"</blockquote>
                                                     <div className="font-semibold text-gray-900">{testimonial.author}</div>
-                                                    <div className="text-blue-600">{testimonial.position}</div>
+                                                    <div className="text-[#065c9b]">{testimonial.position}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -304,14 +348,14 @@ const Index = () => {
                         {/* Navigation Buttons */}
                         <button
                             onClick={prevSlide}
-                            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors z-10 focus:outline-none"
+                            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
                             aria-label="Previous testimonial"
                         >
                             <ChevronLeft className="h-6 w-6" />
                         </button>
                         <button
                             onClick={nextSlide}
-                            className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors z-10 focus:outline-none"
+                            className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
                             aria-label="Next testimonial"
                         >
                             <ChevronRight className="h-6 w-6" />
@@ -323,7 +367,7 @@ const Index = () => {
                                 <button
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
-                                    className={`h-2.5 rounded-full transition-all duration-300 ${index === currentSlide ? 'w-8 bg-blue-600' : 'w-2.5 bg-gray-300'
+                                    className={`h-2.5 rounded-full transition-all duration-300 ${index === currentSlide ? 'w-8 bg-[#065c9b]' : 'w-2.5 bg-gray-300'
                                         }`}
                                     aria-label={`Go to testimonial ${index + 1}`}
                                 ></button>
@@ -406,7 +450,7 @@ const Index = () => {
                             >
                                 {jobOpenings.map((job) => (
                                     <div key={job.id} className="w-full flex-shrink-0 px-4">
-                                        <div className="bg-white rounded-lg shadow-lg p-8 border-l-4 border-blue-600">
+                                        <div className="bg-white rounded-lg shadow-lg p-8 border-l-4 border-[#065c9b]">
                                             <h3 className="text-2xl font-bold text-gray-900 mb-3">{job.title}</h3>
                                             <div className="flex items-center text-gray-500 mb-4 space-x-4 flex-wrap">
                                                 <span className="flex items-center">
@@ -421,7 +465,7 @@ const Index = () => {
                                                 <ul className="space-y-2">
                                                     {job.requirements.map((req, index) => (
                                                         <li key={index} className="flex items-start">
-                                                            <span className="text-blue-600 mr-2">•</span>
+                                                            <span className="text-[#065c9b] mr-2">•</span>
                                                             {req}
                                                         </li>
                                                     ))}
@@ -430,7 +474,7 @@ const Index = () => {
                                             <div className="mt-6">
                                                 <a
                                                     href="#contact"
-                                                    className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-300"
+                                                    className="inline-flex items-center bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-300"
                                                 >
                                                     Apply Now <ArrowRight className="ml-1 h-4 w-4" />
                                                 </a>
@@ -444,14 +488,14 @@ const Index = () => {
                         {/* Job Navigation Buttons */}
                         <button
                             onClick={prevJobSlide}
-                            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors z-10 focus:outline-none"
+                            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
                             aria-label="Previous job"
                         >
                             <ChevronLeft className="h-7 w-7" />
                         </button>
                         <button
                             onClick={nextJobSlide}
-                            className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-blue-600 hover:bg-blue-50 transition-colors z-10 focus:outline-none"
+                            className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
                             aria-label="Next job"
                         >
                             <ChevronRight className="h-7 w-7" />
@@ -463,7 +507,7 @@ const Index = () => {
                                 <button
                                     key={index}
                                     onClick={() => setCurrentJobIndex(index)}
-                                    className={`h-3 rounded-full transition-all duration-300 ${index === currentJobIndex ? 'w-10 bg-blue-600' : 'w-3 bg-gray-300'
+                                    className={`h-3 rounded-full transition-all duration-300 ${index === currentJobIndex ? 'w-10 bg-[#065c9b]' : 'w-3 bg-gray-300'
                                         }`}
                                     aria-label={`Go to job ${index + 1}`}
                                 ></button>
@@ -483,7 +527,7 @@ const Index = () => {
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+                    <div className="max-w-3xl mx-auto my-auto">
                         <div className="bg-gray-100 p-8 rounded-lg shadow-md transition-transform hover:transform hover:scale-[1.01]">
                             <h3 className="text-xl font-bold mb-4">Collaboration Inquiry</h3>
                             <form className="space-y-4">
@@ -491,36 +535,36 @@ const Index = () => {
                                     <input
                                         type="text"
                                         placeholder="Your Name"
-                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
                                     />
                                 </div>
                                 <div>
                                     <input
                                         type="email"
                                         placeholder="Your Email"
-                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
                                     />
                                 </div>
                                 <div>
                                     <input
                                         type="text"
                                         placeholder="Company"
-                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
                                     />
                                 </div>
                                 <div>
                                     <textarea
                                         placeholder="Tell us about your requirements"
-                                        className="w-full min-h-[80px] h-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+                                        className="w-full min-h-[80px] h-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
                                     ></textarea>
                                 </div>
-                                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300">
+                                <button type="submit" className="w-full bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300">
                                     Submit Inquiry
                                 </button>
                             </form>
                         </div>
 
-                        <div className="bg-blue-600 text-white p-8 rounded-lg shadow-md transition-transform hover:transform hover:scale-[1.01]">
+                        {/* <div className="bg-[#065c9b] text-white p-8 rounded-lg shadow-md transition-transform hover:transform hover:scale-[1.01]">
                             <h3 className="text-xl font-bold mb-4">Apply for a Position</h3>
                             <form className="space-y-4">
                                 <div>
@@ -554,23 +598,23 @@ const Index = () => {
                                         className="w-full min-h-[80px] h-32 bg-white/20 border-white/20 text-white placeholder:text-white/70 rounded-md border px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                                     ></textarea>
                                 </div>
-                                <button type="submit" className="w-full bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition duration-300 flex items-center justify-center">
+                                <button type="submit" className="w-full bg-white text-[#065c9b] px-4 py-2 rounded-md hover:bg-gray-100 transition duration-300 flex items-center justify-center">
                                     Submit Application <ArrowRight className="ml-2 h-4 w-4" />
                                 </button>
                             </form>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </section>
 
             {/* Talent CTA Section */}
-            <section id="talent" className="py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+            <section id="talent" className="py-16 bg-gradient-to-r from-[#065c9b] to-blue-800 text-white">
                 <div className="container mx-auto px-6 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold mb-6">Join CareersLab – For Talent</h2>
                     <p className="text-xl mb-8 max-w-2xl mx-auto">
                         Are you a tech enthusiast, student, or experienced dev ready to work on real projects?
                     </p>
-                    <button className="px-8 py-6 text-blue-600 text-lg font-medium bg-white rounded-md hover:bg-gray-100 transition duration-300">
+                    <button className="px-8 py-6 text-[#065c9b] text-lg font-medium bg-white rounded-md hover:bg-gray-100 transition duration-300">
                         Apply Now – Join Talent Pool
                     </button>
                 </div>
