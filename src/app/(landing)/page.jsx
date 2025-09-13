@@ -1,7 +1,14 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, ArrowLeft, Check, Code, Laptop, Users, Mail, Phone, ExternalLink, Clock, Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, Code, Laptop, Users, Mail, Phone, ExternalLink, Clock, Briefcase, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import Squares from '@/components/Squares/Squares';
+import { client } from '@/sanity/client';
+
+
+// Shared Web3Forms Access Key (same as Contact form)
+const WEB3FORMS_ACCESS_KEY = "5f7a0df2-4f81-4bcd-aad9-49ce1c570f36"; // consider moving to env for production
+
+
 
 // Simple SVG icon for handshake directly in this file
 const HandshakeIcon = () => (
@@ -45,59 +52,34 @@ const testimonials = [
     }
 ];
 
-// Job openings data
-const jobOpenings = [
-    {
-        id: 1,
-        title: "Senior Python Developer",
-        location: "Remote",
-        type: "Full-time",
-        description: "We're looking for an experienced Python developer with machine learning expertise to join our AI solutions team.",
-        requirements: ["5+ years Python experience", "Machine learning knowledge", "API development skills", "Team collaboration"]
-    },
-    {
-        id: 2,
-        title: "UX/UI Designer",
-        location: "London (Hybrid)",
-        type: "Full-time",
-        description: "Creative designer needed to craft user experiences across web and mobile applications for our clients.",
-        requirements: ["3+ years UX/UI experience", "Figma proficiency", "User research skills", "Portfolio of work"]
-    },
-    {
-        id: 3,
-        title: "Full Stack Developer Intern",
-        location: "Remote",
-        type: "Internship (6 months)",
-        description: "Great opportunity for a student or recent graduate to gain hands-on experience in web development.",
-        requirements: ["JavaScript knowledge", "Basic React skills", "Willingness to learn", "Education in CS or related field"]
-    },
-    {
-        id: 4,
-        title: "Senior Python Developer",
-        location: "Remote",
-        type: "Full-time",
-        description: "We're looking for an experienced Python developer with machine learning expertise to join our AI solutions team.",
-        requirements: ["5+ years Python experience", "Machine learning knowledge", "API development skills", "Team collaboration"]
-    },
-    {
-        id: 5,
-        title: "UX/UI Designer",
-        location: "London (Hybrid)",
-        type: "Full-time",
-        description: "Creative designer needed to craft user experiences across web and mobile applications for our clients.",
-        requirements: ["3+ years UX/UI experience", "Figma proficiency", "User research skills", "Portfolio of work"]
-    },
-    {
-        id: 6,
-        title: "Full Stack Developer Intern",
-        location: "Remote",
-        type: "Internship (6 months)",
-        description: "Great opportunity for a student or recent graduate to gain hands-on experience in web development.",
-        requirements: ["JavaScript knowledge", "Basic React skills", "Willingness to learn", "Education in CS or related field"]
-    }
+// Clients logos (using placeholders in public/ or external URLs)
+const clients = [
+    { name: 'Vercel', logo: '/astute.png' },
+    { name: 'Next.js', logo: '/mooncoin.webp' },
 ];
 
-const Index = () => {
+
+
+const Index =() => {
+    // Job openings data
+    const [jobOpenings, setJobOpenings] = useState([]);
+    const [isTalentModalOpen, setIsTalentModalOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchJobOpenings = async () => {
+            const query = `*[_type == "jobPost"]{
+            jobTitle,
+            locationType,
+            workType,
+            description,
+            requirements,
+            applyLink
+        }`;
+            const jobs = await client.fetch(query);
+            setJobOpenings(jobs);
+        };
+        fetchJobOpenings();
+    }, []);
     // State for testimonial carousel
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -223,6 +205,28 @@ const Index = () => {
                         >
                             Learn More <ArrowRight className="ml-2 h-5 w-5" />
                         </a>
+                    </div>
+                </div>
+            </section>
+
+            {/* Clients Logos Section */}
+            <section id="clients" className="py-16 bg-white">
+                <div className="container mx-auto px-6">
+                    <div className="text-center mb-10">
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Trusted by teams and brands</h2>
+                        <p className="text-gray-600">Some of the organizations we’ve partnered with.</p>
+                    </div>
+                    <div className="mx-auto max-w-5xl flex flex-wrap justify-center items-center gap-x-10 gap-y-6">
+                        {clients.map((c) => (
+                            <div key={c.name} className="flex items-center justify-center basis-1/2 sm:basis-1/3 md:basis-1/4 opacity-80 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+                                <img
+                                    src={c.logo}
+                                    alt={`${c.name} logo`}
+                                    className="h-12 md:h-16 w-auto object-contain"
+                                    loading="lazy"
+                                />
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -448,16 +452,16 @@ const Index = () => {
                                 className="flex transition-transform duration-500 ease-in-out"
                                 style={{ transform: `translateX(-${currentJobIndex * 100}%)` }}
                             >
-                                {jobOpenings.map((job) => (
-                                    <div key={job.id} className="w-full flex-shrink-0 px-4">
+                                {jobOpenings.map((job,index) => (
+                                    <div key={index} className="w-full flex-shrink-0 px-4">
                                         <div className="bg-white rounded-lg shadow-lg p-8 border-l-4 border-[#065c9b]">
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-3">{job.title}</h3>
+                                            <h3 className="text-2xl font-bold text-gray-900 mb-3">{job.jobTitle}</h3>
                                             <div className="flex items-center text-gray-500 mb-4 space-x-4 flex-wrap">
                                                 <span className="flex items-center">
                                                     <Briefcase className="h-4 w-4 mr-1" />
-                                                    {job.type}
+                                                    {job.workType}
                                                 </span>
-                                                <span>{job.location}</span>
+                                                <span>{job.locationType}</span>
                                             </div>
                                             <p className="text-gray-600 mb-6">{job.description}</p>
                                             <div className="mb-6">
@@ -473,7 +477,7 @@ const Index = () => {
                                             </div>
                                             <div className="mt-6">
                                                 <a
-                                                    href="#contact"
+                                                    href={job.applyLink}
                                                     className="inline-flex items-center bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-300"
                                                 >
                                                     Apply Now <ArrowRight className="ml-1 h-4 w-4" />
@@ -530,79 +534,8 @@ const Index = () => {
                     <div className="max-w-3xl mx-auto my-auto">
                         <div className="bg-gray-100 p-8 rounded-lg shadow-md transition-transform hover:transform hover:scale-[1.01]">
                             <h3 className="text-xl font-bold mb-4">Collaboration Inquiry</h3>
-                            <form className="space-y-4">
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Your Name"
-                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="email"
-                                        placeholder="Your Email"
-                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Company"
-                                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                                    />
-                                </div>
-                                <div>
-                                    <textarea
-                                        placeholder="Tell us about your requirements"
-                                        className="w-full min-h-[80px] h-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                                    ></textarea>
-                                </div>
-                                <button type="submit" className="w-full bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300">
-                                    Submit Inquiry
-                                </button>
-                            </form>
+                            <ContactForm />
                         </div>
-
-                        {/* <div className="bg-[#065c9b] text-white p-8 rounded-lg shadow-md transition-transform hover:transform hover:scale-[1.01]">
-                            <h3 className="text-xl font-bold mb-4">Apply for a Position</h3>
-                            <form className="space-y-4">
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Your Name"
-                                        className="w-full bg-white/20 border-white/20 text-white placeholder:text-white/70 rounded-md border px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="email"
-                                        placeholder="Your Email"
-                                        className="w-full bg-white/20 border-white/20 text-white placeholder:text-white/70 rounded-md border px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                                    />
-                                </div>
-                                <div>
-                                    <select
-                                        className="w-full bg-white/20 border-white/20 text-white placeholder:text-white/70 rounded-md border px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                                        defaultValue=""
-                                    >
-                                        <option value="" disabled>Select Position</option>
-                                        {jobOpenings.map(job => (
-                                            <option key={job.id} value={job.title}>{job.title}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <textarea
-                                        placeholder="Why are you a good fit for this role?"
-                                        className="w-full min-h-[80px] h-32 bg-white/20 border-white/20 text-white placeholder:text-white/70 rounded-md border px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                                    ></textarea>
-                                </div>
-                                <button type="submit" className="w-full bg-white text-[#065c9b] px-4 py-2 rounded-md hover:bg-gray-100 transition duration-300 flex items-center justify-center">
-                                    Submit Application <ArrowRight className="ml-2 h-4 w-4" />
-                                </button>
-                            </form>
-                        </div> */}
                     </div>
                 </div>
             </section>
@@ -614,11 +547,38 @@ const Index = () => {
                     <p className="text-xl mb-8 max-w-2xl mx-auto">
                         Are you a tech enthusiast, student, or experienced dev ready to work on real projects?
                     </p>
-                    <button className="px-8 py-6 text-[#065c9b] text-lg font-medium bg-white rounded-md hover:bg-gray-100 transition duration-300">
+                    <button onClick={() => setIsTalentModalOpen(true)} className="px-8 py-6 text-[#065c9b] text-lg font-medium bg-white rounded-md hover:bg-gray-100 transition duration-300">
                         Apply Now – Join Talent Pool
                     </button>
                 </div>
             </section>
+
+            {isTalentModalOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/50"
+                        onClick={() => setIsTalentModalOpen(false)}
+                        aria-hidden="true"
+                    />
+                    {/* Modal */}
+                    <div className="relative z-[61] w-full max-w-xl mx-4 rounded-lg bg-white shadow-xl">
+                        <div className="flex items-center justify-between border-b px-6 py-4">
+                            <h3 className="text-lg font-semibold text-gray-900">Join Talent Pool</h3>
+                            <button
+                                onClick={() => setIsTalentModalOpen(false)}
+                                className="text-gray-500 hover:text-gray-800"
+                                aria-label="Close"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <TalentForm onSubmitted={() => setIsTalentModalOpen(false)} />
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Footer Section */}
             <footer className="bg-gray-900 text-white py-12">
@@ -662,7 +622,7 @@ const Index = () => {
                                 </li>
                                 <li className="flex items-center">
                                     <Phone className="h-5 w-5 mr-2 text-blue-400" />
-                                    <span>+1 (555) 123-4567</span>
+                                    <span>+91 95679 99717</span>
                                 </li>
                                 <li className="flex items-center">
                                     <ExternalLink className="h-5 w-5 mr-2 text-blue-400" />
@@ -690,3 +650,174 @@ const Index = () => {
 };
 
 export default Index;
+
+// ContactForm component using Web3Forms API
+function ContactForm() {
+    const [result, setResult] = useState("");
+
+    const onSubmit = async (event) => {
+    event.preventDefault();
+        setResult("Sending....");
+        const formData = new FormData(event.target);
+    formData.append("access_key", WEB3FORMS_ACCESS_KEY); // Replace with your real key
+
+        const response = await fetch("https://api.web3forms.com/submit", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            setResult("Form Submitted Successfully");
+            event.target.reset();
+        } else {
+            console.log("Error", data);
+            setResult(data.message);
+        }
+    };
+
+    return (
+        <form className="space-y-4" onSubmit={onSubmit}>
+            <div>
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Your Name"
+                    required
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                />
+            </div>
+            <div>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Your Email"
+                    required
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                />
+            </div>
+            <div>
+                <input
+                    type="text"
+                    name="company"
+                    placeholder="Company"
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                />
+            </div>
+            <div>
+                <textarea
+                    name="message"
+                    placeholder="Tell us about your requirements"
+                    required
+                    className="w-full min-h-[80px] h-32 rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                ></textarea>
+            </div>
+            <button type="submit" className="w-full bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300">
+                Submit Inquiry
+            </button>
+            <span className="block text-center text-sm mt-2">{result}</span>
+        </form>
+    );
+}
+
+// Talent Pool Form (Modal) – uses same Web3Forms endpoint
+function TalentForm({ onSubmitted }) {
+    const [result, setResult] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    const onSubmit = async (event) => {
+        event.preventDefault();
+        setSubmitting(true);
+        setResult("Sending....");
+        const formData = new FormData(event.target);
+        formData.append("access_key", WEB3FORMS_ACCESS_KEY);
+        formData.append("subject", "Talent Pool Application - CareersLab");
+        formData.append("from_website", "careerslab.thamzeal.com");
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                setResult("Application submitted successfully");
+                event.target.reset();
+                setTimeout(() => {
+                    setSubmitting(false);
+                    setResult("");
+                    onSubmitted && onSubmitted();
+                }, 900);
+            } else {
+                setSubmitting(false);
+                setResult(data.message || "Something went wrong.");
+            }
+        } catch (err) {
+            setSubmitting(false);
+            setResult("Network error. Please try again.");
+        }
+    };
+
+    return (
+        <form className="space-y-4" onSubmit={onSubmit} encType="multipart/form-data">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    required
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                />
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    required
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone (optional)"
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                />
+                <input
+                    type="text"
+                    name="role_or_skills"
+                    placeholder="Role/Skills (e.g., React, Python)"
+                    required
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                />
+            </div>
+            <div>
+                <textarea
+                    name="about"
+                    placeholder="Brief about you or experience (optional)"
+                    className="w-full min-h-[80px] h-28 rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
+                ></textarea>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Resume (optional)</label>
+                <input
+                    type="file"
+                    name="resume"
+                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-[#065c9b] file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
+                />
+            </div>
+            {/* Honeypot field for spam prevention */}
+            <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
+            <button
+                type="submit"
+                disabled={submitting}
+                className="w-full bg-[#065c9b] hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition duration-300"
+            >
+                {submitting ? 'Submitting…' : 'Submit Application'}
+            </button>
+            <span className="block text-center text-sm mt-2">{result}</span>
+        </form>
+    );
+}
