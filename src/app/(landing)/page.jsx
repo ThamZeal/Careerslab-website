@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowRight, ArrowLeft, Check, Code, Laptop, Users, Mail, Phone, ExternalLink, Clock, Briefcase, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ArrowRight, Check, Code, Laptop, Users, Mail, Phone, ExternalLink, Clock, Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
 import Squares from '@/components/Squares/Squares';
 import { client } from '@/sanity/client';
 
@@ -54,29 +54,36 @@ const testimonials = [
 
 // Clients logos (using placeholders in public/ or external URLs)
 const clients = [
-    { name: 'Vercel', logo: '/astute.png' },
-    { name: 'Next.js', logo: '/mooncoin.webp' },
+    { name: 'Astute', logo: '/astute.png' },
+    { name: 'Mooncoin', logo: '/mooncoin.webp' },
 ];
-
 
 
 const Index =() => {
     // Job openings data
     const [jobOpenings, setJobOpenings] = useState([]);
-    const [isTalentModalOpen, setIsTalentModalOpen] = useState(false);
+    const [jobsLoading, setJobsLoading] = useState(true);
 
     useEffect(() => {
         const fetchJobOpenings = async () => {
-            const query = `*[_type == "jobPost"]{
-            jobTitle,
-            locationType,
-            workType,
-            description,
-            requirements,
-            applyLink
-        }`;
-            const jobs = await client.fetch(query);
-            setJobOpenings(jobs);
+            try {
+                setJobsLoading(true);
+                const query = `*[_type == "jobPost"]{
+                jobTitle,
+                locationType,
+                workType,
+                description,
+                requirements,
+                applyLink
+            }`;
+                const jobs = await client.fetch(query);
+                setJobOpenings(jobs);
+            } catch (error) {
+                console.error('Error fetching job openings:', error);
+                setJobOpenings([]);
+            } finally {
+                setJobsLoading(false);
+            }
         };
         fetchJobOpenings();
     }, []);
@@ -108,12 +115,30 @@ const Index =() => {
 
     // Function to move to the next job slide
     const nextJobSlide = () => {
+        if (jobOpenings.length === 0) return;
+        // Clear the auto-advance interval when user manually navigates
+        if (jobIntervalRef.current) {
+            clearInterval(jobIntervalRef.current);
+        }
         setCurrentJobIndex((prev) => (prev + 1) % jobOpenings.length);
+        // Restart auto-advance after manual navigation
+        setTimeout(() => {
+            startJobAutoAdvance();
+        }, 7000); // Give user 7 seconds before resuming auto-advance
     };
 
     // Function to move to the previous job slide
     const prevJobSlide = () => {
+        if (jobOpenings.length === 0) return;
+        // Clear the auto-advance interval when user manually navigates
+        if (jobIntervalRef.current) {
+            clearInterval(jobIntervalRef.current);
+        }
         setCurrentJobIndex((prev) => (prev - 1 + jobOpenings.length) % jobOpenings.length);
+        // Restart auto-advance after manual navigation
+        setTimeout(() => {
+            startJobAutoAdvance();
+        }, 7000); // Give user 7 seconds before resuming auto-advance
     };
 
     // Auto-advance testimonial carousel
@@ -124,17 +149,23 @@ const Index =() => {
         return () => clearInterval(interval);
     }, [currentSlide]);
 
-    // Auto-advance job carousel with improved implementation
-    useEffect(() => {
-        // Clear any existing interval
+    // Function to start auto-advance for jobs
+    const startJobAutoAdvance = () => {
         if (jobIntervalRef.current) {
             clearInterval(jobIntervalRef.current);
         }
+        if (jobOpenings.length > 1) {
+            jobIntervalRef.current = setInterval(() => {
+                setCurrentJobIndex((prev) => (prev + 1) % jobOpenings.length);
+            }, 5000);
+        }
+    };
 
-        // Set new interval
-        jobIntervalRef.current = window.setInterval(() => {
-            nextJobSlide();
-        }, 5000);
+    // Auto-advance job carousel - only start when jobs are loaded
+    useEffect(() => {
+        if (jobOpenings.length > 1) {
+            startJobAutoAdvance();
+        }
 
         // Clean up on unmount
         return () => {
@@ -142,7 +173,7 @@ const Index =() => {
                 clearInterval(jobIntervalRef.current);
             }
         };
-    }, [currentJobIndex]);
+    }, [jobOpenings.length]); // Only depend on jobOpenings.length, not currentJobIndex
 
     return (
         <div className="min-h-screen bg-white scroll-smooth">
@@ -447,76 +478,105 @@ const Index =() => {
 
                     {/* Enhanced Job Carousel */}
                     <div className="max-w-3xl mx-auto relative">
-                        <div className="overflow-hidden">
-                            <div
-                                className="flex transition-transform duration-500 ease-in-out"
-                                style={{ transform: `translateX(-${currentJobIndex * 100}%)` }}
-                            >
-                                {jobOpenings.map((job,index) => (
-                                    <div key={index} className="w-full flex-shrink-0 px-4">
-                                        <div className="bg-white rounded-lg shadow-lg p-8 border-l-4 border-[#065c9b]">
-                                            <h3 className="text-2xl font-bold text-gray-900 mb-3">{job.jobTitle}</h3>
-                                            <div className="flex items-center text-gray-500 mb-4 space-x-4 flex-wrap">
-                                                <span className="flex items-center">
-                                                    <Briefcase className="h-4 w-4 mr-1" />
-                                                    {job.workType}
-                                                </span>
-                                                <span>{job.locationType}</span>
-                                            </div>
-                                            <p className="text-gray-600 mb-6">{job.description}</p>
-                                            <div className="mb-6">
-                                                <h4 className="text-sm font-semibold text-gray-700 mb-3">Requirements:</h4>
-                                                <ul className="space-y-2">
-                                                    {job.requirements.map((req, index) => (
-                                                        <li key={index} className="flex items-start">
-                                                            <span className="text-[#065c9b] mr-2">•</span>
-                                                            {req}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                            <div className="mt-6">
-                                                <a
-                                                    href={job.applyLink}
-                                                    className="inline-flex items-center bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-300"
-                                                >
-                                                    Apply Now <ArrowRight className="ml-1 h-4 w-4" />
-                                                </a>
+                        {jobsLoading ? (
+                            <div className="text-center py-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#065c9b] mx-auto mb-4"></div>
+                                <p className="text-gray-600">Loading job openings...</p>
+                            </div>
+                        ) : jobOpenings.length === 0 ? (
+                            <div className="text-center py-12">
+                                <Briefcase className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Job Openings Available</h3>
+                                <p className="text-gray-600">We're currently not hiring, but check back soon for new opportunities!</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-hidden">
+                                <div
+                                    className="flex transition-transform duration-500 ease-in-out"
+                                    style={{ transform: `translateX(-${currentJobIndex * 100}%)` }}
+                                >
+                                    {jobOpenings.map((job,index) => (
+                                        <div key={index} className="w-full flex-shrink-0 px-4">
+                                            <div className="bg-white rounded-lg shadow-lg p-8 border-l-4 border-[#065c9b]">
+                                                <h3 className="text-2xl font-bold text-gray-900 mb-3">{job.jobTitle}</h3>
+                                                <div className="flex items-center text-gray-500 mb-4 space-x-4 flex-wrap">
+                                                    <span className="flex items-center">
+                                                        <Briefcase className="h-4 w-4 mr-1" />
+                                                        {job.workType}
+                                                    </span>
+                                                    <span>{job.locationType}</span>
+                                                </div>
+                                                <p className="text-gray-600 mb-6">{job.description}</p>
+                                                <div className="mb-6">
+                                                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Requirements:</h4>
+                                                    <ul className="space-y-2">
+                                                        {job.requirements.map((req, index) => (
+                                                            <li key={index} className="flex items-start">
+                                                                <span className="text-[#065c9b] mr-2">•</span>
+                                                                {req}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                                <div className="mt-6">
+                                                    <a
+                                                        href={job.applyLink}
+                                                        className="inline-flex items-center bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-300"
+                                                    >
+                                                        Apply Now <ArrowRight className="ml-1 h-4 w-4" />
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Job Navigation Buttons - Only show if there are multiple jobs */}
+                        {jobOpenings.length > 1 && (
+                            <>
+                                <button
+                                    onClick={prevJobSlide}
+                                    className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
+                                    aria-label="Previous job"
+                                >
+                                    <ChevronLeft className="h-7 w-7" />
+                                </button>
+                                <button
+                                    onClick={nextJobSlide}
+                                    className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
+                                    aria-label="Next job"
+                                >
+                                    <ChevronRight className="h-7 w-7" />
+                                </button>
+                            </>
+                        )}
+
+                        {/* Job Dots Indicator - Only show if there are multiple jobs */}
+                        {jobOpenings.length > 1 && (
+                            <div className="flex justify-center mt-8 space-x-3">
+                                {jobOpenings.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => {
+                                            // Clear the auto-advance interval when user manually navigates
+                                            if (jobIntervalRef.current) {
+                                                clearInterval(jobIntervalRef.current);
+                                            }
+                                            setCurrentJobIndex(index);
+                                            // Restart auto-advance after manual navigation
+                                            setTimeout(() => {
+                                                startJobAutoAdvance();
+                                            }, 7000); // Give user 7 seconds before resuming auto-advance
+                                        }}
+                                        className={`h-3 rounded-full transition-all duration-300 ${index === currentJobIndex ? 'w-10 bg-[#065c9b]' : 'w-3 bg-gray-300'
+                                            }`}
+                                        aria-label={`Go to job ${index + 1}`}
+                                    ></button>
                                 ))}
                             </div>
-                        </div>
-
-                        {/* Job Navigation Buttons */}
-                        <button
-                            onClick={prevJobSlide}
-                            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
-                            aria-label="Previous job"
-                        >
-                            <ChevronLeft className="h-7 w-7" />
-                        </button>
-                        <button
-                            onClick={nextJobSlide}
-                            className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-5 h-12 w-12 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
-                            aria-label="Next job"
-                        >
-                            <ChevronRight className="h-7 w-7" />
-                        </button>
-
-                        {/* Job Dots Indicator */}
-                        <div className="flex justify-center mt-8 space-x-3">
-                            {jobOpenings.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentJobIndex(index)}
-                                    className={`h-3 rounded-full transition-all duration-300 ${index === currentJobIndex ? 'w-10 bg-[#065c9b]' : 'w-3 bg-gray-300'
-                                        }`}
-                                    aria-label={`Go to job ${index + 1}`}
-                                ></button>
-                            ))}
-                        </div>
+                        )}
                     </div>
                 </div>
             </section>
@@ -547,38 +607,12 @@ const Index =() => {
                     <p className="text-xl mb-8 max-w-2xl mx-auto">
                         Are you a tech enthusiast, student, or experienced dev ready to work on real projects?
                     </p>
-                    <button onClick={() => setIsTalentModalOpen(true)} className="px-8 py-6 text-[#065c9b] text-lg font-medium bg-white rounded-md hover:bg-gray-100 transition duration-300">
+                    <a href="https://forms.gle/Riwq9eTkESy9d5Bm9" className="px-8 py-6 inline-block text-[#065c9b] text-lg font-medium bg-white rounded-md hover:bg-gray-100 transition duration-300">
                         Apply Now – Join Talent Pool
-                    </button>
+                    </a>
                 </div>
             </section>
 
-            {isTalentModalOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center">
-                    {/* Backdrop */}
-                    <div
-                        className="absolute inset-0 bg-black/50"
-                        onClick={() => setIsTalentModalOpen(false)}
-                        aria-hidden="true"
-                    />
-                    {/* Modal */}
-                    <div className="relative z-[61] w-full max-w-xl mx-4 rounded-lg bg-white shadow-xl">
-                        <div className="flex items-center justify-between border-b px-6 py-4">
-                            <h3 className="text-lg font-semibold text-gray-900">Join Talent Pool</h3>
-                            <button
-                                onClick={() => setIsTalentModalOpen(false)}
-                                className="text-gray-500 hover:text-gray-800"
-                                aria-label="Close"
-                            >
-                                <X className="h-5 w-5" />
-                            </button>
-                        </div>
-                        <div className="p-6">
-                            <TalentForm onSubmitted={() => setIsTalentModalOpen(false)} />
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Footer Section */}
             <footer className="bg-gray-900 text-white py-12">
@@ -715,107 +749,6 @@ function ContactForm() {
             </div>
             <button type="submit" className="w-full bg-[#065c9b] hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-300">
                 Submit Inquiry
-            </button>
-            <span className="block text-center text-sm mt-2">{result}</span>
-        </form>
-    );
-}
-
-// Talent Pool Form (Modal) – uses same Web3Forms endpoint
-function TalentForm({ onSubmitted }) {
-    const [result, setResult] = useState("");
-    const [submitting, setSubmitting] = useState(false);
-
-    const onSubmit = async (event) => {
-        event.preventDefault();
-        setSubmitting(true);
-        setResult("Sending....");
-        const formData = new FormData(event.target);
-        formData.append("access_key", WEB3FORMS_ACCESS_KEY);
-        formData.append("subject", "Talent Pool Application - CareersLab");
-        formData.append("from_website", "careerslab.thamzeal.com");
-
-        try {
-            const response = await fetch("https://api.web3forms.com/submit", {
-                method: "POST",
-                body: formData
-            });
-            const data = await response.json();
-            if (data.success) {
-                setResult("Application submitted successfully");
-                event.target.reset();
-                setTimeout(() => {
-                    setSubmitting(false);
-                    setResult("");
-                    onSubmitted && onSubmitted();
-                }, 900);
-            } else {
-                setSubmitting(false);
-                setResult(data.message || "Something went wrong.");
-            }
-        } catch (err) {
-            setSubmitting(false);
-            setResult("Network error. Please try again.");
-        }
-    };
-
-    return (
-        <form className="space-y-4" onSubmit={onSubmit} encType="multipart/form-data">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Full Name"
-                    required
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    required
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone (optional)"
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                />
-                <input
-                    type="text"
-                    name="role_or_skills"
-                    placeholder="Role/Skills (e.g., React, Python)"
-                    required
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                />
-            </div>
-            <div>
-                <textarea
-                    name="about"
-                    placeholder="Brief about you or experience (optional)"
-                    className="w-full min-h-[80px] h-28 rounded-md border border-gray-300 bg-white px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#065c9b]"
-                ></textarea>
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Resume (optional)</label>
-                <input
-                    type="file"
-                    name="resume"
-                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    className="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-[#065c9b] file:px-4 file:py-2 file:text-white hover:file:bg-blue-700"
-                />
-            </div>
-            {/* Honeypot field for spam prevention */}
-            <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
-            <button
-                type="submit"
-                disabled={submitting}
-                className="w-full bg-[#065c9b] hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition duration-300"
-            >
-                {submitting ? 'Submitting…' : 'Submit Application'}
             </button>
             <span className="block text-center text-sm mt-2">{result}</span>
         </form>
