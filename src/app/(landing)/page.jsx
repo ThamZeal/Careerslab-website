@@ -27,42 +27,18 @@ const HandshakeIcon = () => (
     </svg>
 );
 
-// Testimonial data for carousel
-const testimonials = [
-    {
-        id: 1,
-        quote: "CareersLab helped us build our AI team in just 2 weeks. The candidates were pre-trained and ready to contribute from day one.",
-        author: "Sarah Johnson",
-        position: "CTO, TechNova Solutions",
-        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop"
-    },
-    {
-        id: 2,
-        quote: "We've been working with CareersLab for over a year now. They consistently provide high-quality talent that fits our company culture.",
-        author: "Michael Chen",
-        position: "Engineering Manager, DataFlow Inc",
-        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop"
-    },
-    {
-        id: 3,
-        quote: "The flexible scaling option allowed us to quickly ramp up for our product launch and then scale back for maintenance mode.",
-        author: "Priya Patel",
-        position: "Product Director, LaunchPad",
-        image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200&auto=format&fit=crop"
-    }
-];
-
-// Clients logos (using placeholders in public/ or external URLs)
-const clients = [
-    { name: 'Astute', logo: '/astute.png' },
-    { name: 'Mooncoin', logo: '/mooncoin.webp' },
-];
-
-
 const Index =() => {
     // Job openings data
     const [jobOpenings, setJobOpenings] = useState([]);
     const [jobsLoading, setJobsLoading] = useState(true);
+    
+    // Client data from CMS
+    const [clients, setClients] = useState([]);
+    const [clientsLoading, setClientsLoading] = useState(true);
+    
+    // Testimonials data from CMS
+    const [testimonials, setTestimonials] = useState([]);
+    const [testimonialsLoading, setTestimonialsLoading] = useState(true);
 
     useEffect(() => {
         const fetchJobOpenings = async () => {
@@ -87,8 +63,68 @@ const Index =() => {
         };
         fetchJobOpenings();
     }, []);
+
+    // Fetch clients data from CMS
+    useEffect(() => {
+        const fetchClients = async () => {
+            try {
+                setClientsLoading(true);
+                const query = `*[_type == "clients" && isActive == true] | order(displayOrder asc) {
+                    companyName,
+                    "logoUrl": logo.asset->url,
+                    "logoAlt": logo.alt,
+                    website,
+                    displayOrder
+                }`;
+                const clientsData = await client.fetch(query);
+                setClients(clientsData);
+            } catch (error) {
+                console.error('Error fetching clients:', error);
+                setClients([]);
+            } finally {
+                setClientsLoading(false);
+            }
+        };
+        fetchClients();
+    }, []);
+
+    // Fetch testimonials data from CMS
+    useEffect(() => {
+        const fetchTestimonials = async () => {
+            try {
+                setTestimonialsLoading(true);
+                const query = `*[_type == "testimonials" && isActive == true] | order(displayOrder asc) {
+                    quote,
+                    author,
+                    position,
+                    company,
+                    rating,
+                    "imageUrl": image.asset->url,
+                    "imageAlt": image.alt,
+                    displayOrder,
+                    featured
+                }`;
+                const testimonialsData = await client.fetch(query);
+                setTestimonials(testimonialsData);
+            } catch (error) {
+                console.error('Error fetching testimonials:', error);
+                setTestimonials([]);
+            } finally {
+                setTestimonialsLoading(false);
+            }
+        };
+        fetchTestimonials();
+    }, []);
+
     // State for testimonial carousel
     const [currentSlide, setCurrentSlide] = useState(0);
+    
+    // Reset currentSlide when testimonials are loaded
+    useEffect(() => {
+        if (testimonials.length > 0 && currentSlide >= testimonials.length) {
+            setCurrentSlide(0);
+        }
+    }, [testimonials.length, currentSlide]);
     const [isAnimating, setIsAnimating] = useState(false);
 
     // State for job openings carousel with improved implementation
@@ -97,7 +133,7 @@ const Index =() => {
 
     // Function to move to the next testimonial slide
     const nextSlide = () => {
-        if (!isAnimating) {
+        if (!isAnimating && testimonials.length > 0) {
             setIsAnimating(true);
             setCurrentSlide((prev) => (prev + 1) % testimonials.length);
             setTimeout(() => setIsAnimating(false), 500);
@@ -106,7 +142,7 @@ const Index =() => {
 
     // Function to move to the previous testimonial slide
     const prevSlide = () => {
-        if (!isAnimating) {
+        if (!isAnimating && testimonials.length > 0) {
             setIsAnimating(true);
             setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length);
             setTimeout(() => setIsAnimating(false), 500);
@@ -143,11 +179,13 @@ const Index =() => {
 
     // Auto-advance testimonial carousel
     useEffect(() => {
-        const interval = setInterval(() => {
-            nextSlide();
-        }, 5000);
-        return () => clearInterval(interval);
-    }, [currentSlide]);
+        if (testimonials.length > 1) {
+            const interval = setInterval(() => {
+                setCurrentSlide((prev) => (prev + 1) % testimonials.length);
+            }, 5000);
+            return () => clearInterval(interval);
+        }
+    }, [currentSlide, testimonials.length]);
 
     // Function to start auto-advance for jobs
     const startJobAutoAdvance = () => {
@@ -247,18 +285,45 @@ const Index =() => {
                         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Trusted by teams and brands</h2>
                         <p className="text-gray-600">Some of the organizations we’ve partnered with.</p>
                     </div>
-                    <div className="mx-auto max-w-5xl flex flex-wrap justify-center items-center gap-x-10 gap-y-6">
-                        {clients.map((c) => (
-                            <div key={c.name} className="flex items-center justify-center basis-1/2 sm:basis-1/3 md:basis-1/4 opacity-80 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
-                                <img
-                                    src={c.logo}
-                                    alt={`${c.name} logo`}
-                                    className="h-12 md:h-16 w-auto object-contain"
-                                    loading="lazy"
-                                />
-                            </div>
-                        ))}
-                    </div>
+                    {clientsLoading ? (
+                        <div className="text-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#065c9b] mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading client logos...</p>
+                        </div>
+                    ) : clients.length === 0 ? (
+                        <div className="text-center py-8">
+                            <p className="text-gray-600">No client logos available at the moment.</p>
+                        </div>
+                    ) : (
+                        <div className="mx-auto max-w-5xl flex flex-wrap justify-center items-center gap-x-10 gap-y-6">
+                            {clients.map((client, index) => (
+                                <div key={client.companyName || index} className="flex items-center justify-center basis-1/2 sm:basis-1/3 md:basis-1/4 opacity-90 hover:opacity-100 hover:scale-105 transition-all duration-300">
+                                    {client.website ? (
+                                        <a 
+                                            href={client.website} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="block"
+                                        >
+                                            <img
+                                                src={client.logoUrl}
+                                                alt={client.logoAlt || `${client.companyName} logo`}
+                                                className="h-12 md:h-16 w-auto object-contain transition-transform duration-300"
+                                                loading="lazy"
+                                            />
+                                        </a>
+                                    ) : (
+                                        <img
+                                            src={client.logoUrl}
+                                            alt={client.logoAlt || `${client.companyName} logo`}
+                                            className="h-12 md:h-16 w-auto object-contain transition-transform duration-300"
+                                            loading="lazy"
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -353,62 +418,100 @@ const Index =() => {
                     </div>
 
                     {/* Carousel Component */}
-                    <div className="max-w-4xl mx-auto relative">
-                        <div className="overflow-hidden">
-                            <div
-                                className="flex transition-transform duration-500 ease-in-out"
-                                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                            >
-                                {testimonials.map((testimonial) => (
-                                    <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
-                                        <div className="bg-gradient-to-tr from-blue-50 to-white p-8 rounded-2xl shadow-lg">
-                                            <div className="flex flex-col md:flex-row gap-6 items-center">
-                                                <img
-                                                    src={testimonial.image}
-                                                    alt={testimonial.author}
-                                                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow"
-                                                />
-                                                <div>
-                                                    <blockquote className="text-lg text-gray-700 italic mb-4">"{testimonial.quote}"</blockquote>
-                                                    <div className="font-semibold text-gray-900">{testimonial.author}</div>
-                                                    <div className="text-[#065c9b]">{testimonial.position}</div>
+                    {testimonialsLoading ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#065c9b] mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading testimonials...</p>
+                        </div>
+                    ) : testimonials.length === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="text-gray-400 mb-4">
+                                <Users className="h-16 w-16 mx-auto mb-4" />
+                            </div>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Testimonials Available</h3>
+                            <p className="text-gray-600">We're working on collecting client feedback. Check back soon!</p>
+                        </div>
+                    ) : (
+                        <div className="max-w-4xl mx-auto relative">
+                            <div className="overflow-hidden">
+                                <div
+                                    className="flex transition-transform duration-500 ease-in-out"
+                                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                                >
+                                    {testimonials.map((testimonial, index) => (
+                                        <div key={testimonial.author + index} className="w-full flex-shrink-0 px-4">
+                                            <div className="bg-gradient-to-tr from-blue-50 to-white p-8 rounded-2xl shadow-lg">
+                                                <div className="flex flex-col md:flex-row gap-6 items-center">
+                                                    <img
+                                                        src={testimonial.imageUrl}
+                                                        alt={testimonial.imageAlt || testimonial.author}
+                                                        className="w-24 h-24 rounded-full object-cover border-4 border-white shadow"
+                                                        loading="lazy"
+                                                    />
+                                                    <div className="flex-1">
+                                                        <blockquote className="text-lg text-gray-700 italic mb-4">"{testimonial.quote}"</blockquote>
+                                                        <div className="font-semibold text-gray-900">{testimonial.author}</div>
+                                                        <div className="text-[#065c9b]">{testimonial.position}</div>
+                                                        {testimonial.company && (
+                                                            <div className="text-sm text-gray-500 mt-1">{testimonial.company}</div>
+                                                        )}
+                                                        {testimonial.rating && (
+                                                            <div className="flex items-center mt-2">
+                                                                {[...Array(5)].map((_, i) => (
+                                                                    <span
+                                                                        key={i}
+                                                                        className={`text-sm ${i < testimonial.rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                                                                    >
+                                                                        ★
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Navigation Buttons */}
-                        <button
-                            onClick={prevSlide}
-                            className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
-                            aria-label="Previous testimonial"
-                        >
-                            <ChevronLeft className="h-6 w-6" />
-                        </button>
-                        <button
-                            onClick={nextSlide}
-                            className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none"
-                            aria-label="Next testimonial"
-                        >
-                            <ChevronRight className="h-6 w-6" />
-                        </button>
+                            {/* Navigation Buttons - Only show if there are multiple testimonials */}
+                            {testimonials.length > 1 && !testimonialsLoading && (
+                                <>
+                                    <button
+                                        onClick={prevSlide}
+                                        disabled={isAnimating}
+                                        className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                        aria-label="Previous testimonial"
+                                    >
+                                        <ChevronLeft className="h-6 w-6" />
+                                    </button>
+                                    <button
+                                        onClick={nextSlide}
+                                        disabled={isAnimating}
+                                        className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-4 h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center text-[#065c9b] hover:bg-blue-50 transition-colors z-10 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                        aria-label="Next testimonial"
+                                    >
+                                        <ChevronRight className="h-6 w-6" />
+                                    </button>
 
-                        {/* Dots Indicator */}
-                        <div className="flex justify-center mt-6 space-x-2">
-                            {testimonials.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentSlide(index)}
-                                    className={`h-2.5 rounded-full transition-all duration-300 ${index === currentSlide ? 'w-8 bg-[#065c9b]' : 'w-2.5 bg-gray-300'
-                                        }`}
-                                    aria-label={`Go to testimonial ${index + 1}`}
-                                ></button>
-                            ))}
+                                    {/* Dots Indicator */}
+                                    <div className="flex justify-center mt-6 space-x-2">
+                                        {testimonials.map((_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => !isAnimating && setCurrentSlide(index)}
+                                                disabled={isAnimating}
+                                                className={`h-2.5 rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${index === currentSlide ? 'w-8 bg-[#065c9b]' : 'w-2.5 bg-gray-300'
+                                                    }`}
+                                                aria-label={`Go to testimonial ${index + 1}`}
+                                            ></button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
-                    </div>
+                    )}
                 </div>
             </section>
 
