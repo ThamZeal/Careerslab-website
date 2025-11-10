@@ -1,5 +1,5 @@
 import "./globals.css";
-
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: "CareersLab | Thamzeal International",
@@ -17,6 +17,7 @@ export default function RootLayout({ children }) {
         className={`antialiased scroll-smooth`}
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );
