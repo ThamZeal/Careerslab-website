@@ -53,7 +53,7 @@ const Index =() => {
                 applyLink
             }`;
                 const jobs = await client.fetch(query);
-                setJobOpenings(jobs);
+                setJobOpenings(jobs || []);
             } catch (error) {
                 console.error('Error fetching job openings:', error);
                 setJobOpenings([]);
@@ -77,7 +77,7 @@ const Index =() => {
                     displayOrder
                 }`;
                 const clientsData = await client.fetch(query);
-                setClients(clientsData);
+                setClients(clientsData || []);
             } catch (error) {
                 console.error('Error fetching clients:', error);
                 setClients([]);
@@ -105,7 +105,7 @@ const Index =() => {
                     featured
                 }`;
                 const testimonialsData = await client.fetch(query);
-                setTestimonials(testimonialsData);
+                setTestimonials(testimonialsData || []);
             } catch (error) {
                 console.error('Error fetching testimonials:', error);
                 setTestimonials([]);
@@ -610,17 +610,19 @@ const Index =() => {
                                                     <span>{job.locationType}</span>
                                                 </div>
                                                 <p className="text-gray-600 mb-6">{job.description}</p>
-                                                <div className="mb-6">
-                                                    <h4 className="text-sm font-semibold text-gray-700 mb-3">Requirements:</h4>
-                                                    <ul className="space-y-2">
-                                                        {job.requirements.map((req, index) => (
-                                                            <li key={index} className="flex items-start">
-                                                                <span className="text-[#065c9b] mr-2">•</span>
-                                                                {req}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
+                                                {job.requirements && job.requirements.length > 0 && (
+                                                    <div className="mb-6">
+                                                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Requirements:</h4>
+                                                        <ul className="space-y-2">
+                                                            {job.requirements.map((req, index) => (
+                                                                <li key={index} className="flex items-start">
+                                                                    <span className="text-[#065c9b] mr-2">•</span>
+                                                                    {req}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
                                                 <div className="mt-6">
                                                     <a
                                                         href={job.applyLink}
